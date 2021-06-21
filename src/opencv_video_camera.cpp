@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     capture.set(CAP_PROP_FOURCC,codec);
     // capture.set(CAP_PROP_FRAME_WIDTH, 2560);
     // capture.set(CAP_PROP_FRAME_HEIGHT, 720);
-    capture.set(CAP_PROP_FRAME_WIDTH, 1440);
+    capture.set(CAP_PROP_FRAME_WIDTH, 1280);
     capture.set(CAP_PROP_FRAME_HEIGHT, 480);
     // capture.set(CAP_PROP_FRAME_WIDTH, 640);
     // capture.set(CAP_PROP_FRAME_HEIGHT, 240);
