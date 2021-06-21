@@ -27,7 +27,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    VideoWriter writer;
     int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
     // int codec = VideoWriter::fourcc('Y', 'U', 'Y', 'V');
     // int codec = VideoWriter::fourcc('R', 'G', 'B', '3');

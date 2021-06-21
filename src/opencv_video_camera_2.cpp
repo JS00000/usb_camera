@@ -18,7 +18,7 @@ Mat frame1, frame2;
 
 class VideoCaptureMT {
 public:
-    VideoCaptureMT(int index, int height=480, int width=640);
+    VideoCaptureMT(int index, int apiID, int height=480, int width=640);
     VideoCaptureMT(std::string filePath, int height=480, int width=640);
     ~VideoCaptureMT();
     
@@ -31,7 +31,7 @@ public:
     bool read(cv::Mat& frame);
 
 private:
-    void captureInit(int index, std::string filePath, int height, int width);
+    void captureInit(int index, int apiID, std::string filePath, int height, int width);
     void captureFrame();
 
     int m_index;
@@ -43,14 +43,14 @@ private:
     std::atomic_bool m_IsOpen;
 };
 
-VideoCaptureMT::VideoCaptureMT(int index, int height, int width)
+VideoCaptureMT::VideoCaptureMT(int index, int apiID, int height, int width)
 {
-    captureInit(index, std::string(), height, width);
+    captureInit(index, apiID, std::string(), height, width);
 }
 
 VideoCaptureMT::VideoCaptureMT(std::string filePath, int height, int width)
 {
-    captureInit(0, filePath, height, width);
+    captureInit(0, 0, filePath, height, width);
 }
 
 VideoCaptureMT::~VideoCaptureMT()
@@ -67,15 +67,18 @@ VideoCaptureMT::~VideoCaptureMT()
     delete m_pFrame;
 }
 
-void VideoCaptureMT::captureInit(int index, std::string filePath, int height, int width)
+void VideoCaptureMT::captureInit(int index, int apiID, std::string filePath, int height, int width)
 {
     m_index = index;
     if (!filePath.empty()) {
         m_pCapture = new cv::VideoCapture(filePath);
     }
     else {
-        m_pCapture = new cv::VideoCapture(m_index, cv::CAP_V4L2);
+        m_pCapture = new cv::VideoCapture(m_index, apiID);
     }
+
+    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
+    m_pCapture->set(cv::CAP_PROP_FOURCC,codec);
     m_pCapture->set(cv::CAP_PROP_FRAME_WIDTH, width);
     m_pCapture->set(cv::CAP_PROP_FRAME_HEIGHT, height);
     m_pCapture->set(cv::CAP_PROP_FPS, 30);
@@ -138,8 +141,8 @@ int main(int argc, char** argv)
         return 1;
     }
     cout << "Opening camera..." << endl;
-    VideoCaptureMT capture1(deviceID1); // open the first camera
-    VideoCaptureMT capture2(deviceID2); // open the second camera
+    VideoCaptureMT capture1(deviceID1, apiID); // open the first camera
+    VideoCaptureMT capture2(deviceID2, apiID); // open the second camera
     if (!capture1.isOpened())
     {
         cerr << "ERROR: Can't initialize camera capture1" << endl;
@@ -151,7 +154,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // VideoWriter writer;
     // int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
     // capture1.set(CAP_PROP_FOURCC,codec);
     // capture1.set(CAP_PROP_FRAME_WIDTH, 640);
@@ -181,18 +183,10 @@ int main(int argc, char** argv)
     system(mkdir_pack_right.c_str());
 
     size_t nFrames = 0;
-    // int64 t0 = cv::getTickCount();
     auto t0 = chrono::steady_clock::now();
     int save_id = 0;
     while (capture1.isOpened() && capture2.isOpened())
     {
-        // capture1 >> frame1;
-        // capture2 >> frame2;
-        // if (frame1.empty() || frame2.empty())
-        // {
-        //     cerr << "ERROR: Can't grab camera frame." << endl;
-        //     break;
-        // }
 
         if (!capture1.read(frame1) || !capture2.read(frame2)) {
             cerr << "ERROR: Can't grab camera frame." << endl;
@@ -203,7 +197,6 @@ int main(int argc, char** argv)
         if (nFrames % 10 == 0)
         {
             const int N = 10;
-            // int64 t1 = cv::getTickCount();
             auto t1 = chrono::steady_clock::now();
             cout << "Frames captured: " << cv::format("%5lld", (long long int)nFrames)
                  << "    Average FPS: " << cv::format("%9.1f", 1000000.0 * N / chrono::duration_cast<chrono::microseconds>(t1 - t0).count())
