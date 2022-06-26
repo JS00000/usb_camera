@@ -12,11 +12,12 @@ using namespace std;
 int main(int argc, char** argv)
 {
     int deviceID = 0;
-    int apiID = cv::CAP_ANY;
+    int apiID = cv::CAP_V4L2;
     string save_path = "/dev/shm/";
-    if (argc == 2) {
+    if (argc >= 2) {
         deviceID = atoi(argv[1]);
-    } else if (argc == 3) {
+    }
+    if (argc >= 3) {
         save_path = argv[2];
     }
     cout << "Opening camera " << deviceID << endl;
@@ -42,6 +43,8 @@ int main(int argc, char** argv)
     // capture.set(CAP_PROP_FRAME_HEIGHT, 240);
     // capture.set(CAP_PROP_FORMAT, -1);
     // capture.set(CAP_PROP_MODE, 3);
+    // capture.set(CAP_PROP_FRAME_WIDTH, 1280);
+    // capture.set(CAP_PROP_FRAME_HEIGHT, 720);
     capture.set(CAP_PROP_FPS, 30.0);
 
     cout << "Frame width: " << capture.get(CAP_PROP_FRAME_WIDTH) << endl;

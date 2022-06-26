@@ -131,15 +131,17 @@ int main(int argc, char** argv)
     int deviceID2 = 1;
     int apiID = cv::CAP_V4L2;
     string save_path = "/dev/shm/";
-    if (argc == 3) {
-        deviceID1 = atoi(argv[1]);
-        deviceID2 = atoi(argv[2]);
-    } else if (argc == 4) {
-        save_path = argv[3];
-    } else {
+    if (argc < 3) {
         cerr << "ERROR: parameter must be (deviceID1 deviceID2 [save_path])" << endl;
         return 1;
     }
+    if (argc >= 3) {
+        deviceID1 = atoi(argv[1]);
+        deviceID2 = atoi(argv[2]);
+    }
+    if (argc >= 4) {
+        save_path = argv[3];
+    } 
     cout << "Opening camera..." << endl;
     VideoCaptureMT capture1(deviceID1, apiID); // open the first camera
     VideoCaptureMT capture2(deviceID2, apiID); // open the second camera
