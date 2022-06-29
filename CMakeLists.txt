@@ -11,8 +11,10 @@ find_package(OpenCV REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  roslib
   std_msgs
   cv_bridge
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
@@ -138,6 +140,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/usb_camera_node.cpp)
 add_executable(opencv_video_camera src/opencv_video_camera.cpp)
 add_executable(opencv_video_camera_2 src/opencv_video_camera_2.cpp)
+add_executable(m2_camera_calib src/m2_camera_calib.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,6 +154,7 @@ add_executable(opencv_video_camera_2 src/opencv_video_camera_2.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(opencv_video_camera ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(opencv_video_camera_2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(m2_camera_calib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -161,6 +165,10 @@ target_link_libraries(opencv_video_camera
   ${OpenCV_LIBRARIES}
 )
 target_link_libraries(opencv_video_camera_2
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+)
+target_link_libraries(m2_camera_calib
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )

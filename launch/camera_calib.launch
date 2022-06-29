@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <arg name="rviz"            default="false" />
+
+    <node pkg="usb_camera" type="m2_camera_calib" name="m2_camera_calib" output="screen" args="2 rect" launch-prefix=""/>
+
+    <!-- <include file="$(find usb_camera)/launch/camera_pose.launch"/> -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_broadcaster"
+        args="-0.240446 -0.428043 1.08411   0.918459 -0.395436 -0.000286489 0.00799362 base_link camera_left" />
+
+    <group if="$(arg rviz)">
+        <arg name="debug" default="false" />
+        <arg unless="$(arg debug)" name="launch_prefix" value="" />
+        <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+        <arg name="rviz_config" default="" />
+        <arg     if="$(eval rviz_config=='')" name="command_args" value="" />
+        <arg unless="$(eval rviz_config=='')" name="command_args" value="-d $(arg rviz_config)" />
+        <node name="$(anon rviz)" launch-prefix="$(arg launch_prefix)" pkg="rviz" type="rviz" respawn="false"
+            args="$(arg command_args)" output="screen">
+        </node>
+    </group>
+
+</launch>

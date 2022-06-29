@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     cout << "     height: " << capture.get(CAP_PROP_FRAME_HEIGHT) << endl;
     cout << "Capturing FPS: " << capture.get(CAP_PROP_FPS) << endl;
 
-    cout << endl << "Press 'ESC' to quit, 'space' to toggle frame processing" << endl;
+    cout << endl << "Press 'ESC' to quit, 's' to save image" << endl;
     cout << endl << "Start grabbing..." << endl;
 
     std::string mkdir_pack_left = "mkdir -p " + save_path + "left/";
