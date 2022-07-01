@@ -2,7 +2,7 @@
 <launch>
     <arg name="rviz"            default="false" />
 
-    <node pkg="usb_camera" type="m2_camera_calib" name="m2_camera_calib" output="screen" args="2 rect" launch-prefix=""/>
+    <node pkg="usb_camera" type="m2_camera_calib" name="m2_camera_calib" output="screen" args="/dev/video0 rect" launch-prefix=""/>
 
     <!-- <include file="$(find usb_camera)/launch/camera_pose.launch"/> -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_broadcaster"

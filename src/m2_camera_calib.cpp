@@ -14,13 +14,13 @@ int main(int argc, char** argv)
     bool enable_raw = false;
     bool enable_rect = false;
     bool enable_info = false;
-    int deviceID = 0;
+    std::string deviceName = "/dev/video0";
     int apiID = cv::CAP_V4L2;
     std::vector<std::string> programArgs{};
     ::ros::removeROSArgs(argc, argv, programArgs);
     if (programArgs.size() >= 2) {
-        deviceID = std::stoi(programArgs[1]);
-        std::cout << "deviceID: " << deviceID << std::endl;
+        deviceName = programArgs[1];
+        std::cout << "deviceName: " << deviceName << std::endl;
     }
     for (int i = 2; i < programArgs.size(); i++) {
         if (programArgs[i] == "raw") {
@@ -137,9 +137,8 @@ int main(int argc, char** argv)
         cv::initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, imageSize, CV_16SC2, map1[1], map2[1]);
     }
 
-    std::cout << "Opening camera " << deviceID << std::endl;
-    cv::VideoCapture capture; // open the first camera
-    capture.open(deviceID, apiID);
+    std::cout << "Opening camera " << deviceName << std::endl;
+    cv::VideoCapture capture(deviceName, apiID); // open the camera
     if (!capture.isOpened())
     {
         std::cerr << "ERROR: Can't initialize camera capture" << std::endl;

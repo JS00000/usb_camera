@@ -11,18 +11,17 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    int deviceID = 0;
+    std::string deviceName = "/dev/video0";
     int apiID = cv::CAP_V4L2;
     string save_path = "/dev/shm/";
     if (argc >= 2) {
-        deviceID = atoi(argv[1]);
+        deviceName = argv[1];
     }
     if (argc >= 3) {
         save_path = argv[2];
     }
-    cout << "Opening camera " << deviceID << endl;
-    VideoCapture capture; // open the first camera
-    capture.open(deviceID, apiID);
+    cout << "Opening camera " << deviceName << endl;
+    VideoCapture capture(deviceName, apiID); // open the camera
     if (!capture.isOpened())
     {
         cerr << "ERROR: Can't initialize camera capture" << endl;

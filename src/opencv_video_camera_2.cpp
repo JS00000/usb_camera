@@ -18,8 +18,7 @@ Mat frame1, frame2;
 
 class VideoCaptureMT {
 public:
-    VideoCaptureMT(int index, int apiID, int height=480, int width=640);
-    VideoCaptureMT(std::string filePath, int height=480, int width=640);
+    VideoCaptureMT(std::string deviceName, int apiID, int height=480, int width=640);
     ~VideoCaptureMT();
     
     bool isOpened() {
@@ -31,7 +30,6 @@ public:
     bool read(cv::Mat& frame);
 
 private:
-    void captureInit(int index, int apiID, std::string filePath, int height, int width);
     void captureFrame();
 
     int m_index;
@@ -43,14 +41,27 @@ private:
     std::atomic_bool m_IsOpen;
 };
 
-VideoCaptureMT::VideoCaptureMT(int index, int apiID, int height, int width)
-{
-    captureInit(index, apiID, std::string(), height, width);
-}
 
-VideoCaptureMT::VideoCaptureMT(std::string filePath, int height, int width)
+VideoCaptureMT::VideoCaptureMT(std::string deviceName, int apiID, int height, int width)
 {
-    captureInit(0, 0, filePath, height, width);
+    m_pCapture = new cv::VideoCapture(deviceName, apiID);
+
+    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
+    m_pCapture->set(cv::CAP_PROP_FOURCC,codec);
+    m_pCapture->set(cv::CAP_PROP_FRAME_WIDTH, width);
+    m_pCapture->set(cv::CAP_PROP_FRAME_HEIGHT, height);
+    m_pCapture->set(cv::CAP_PROP_FPS, 30);
+
+    cout << "camera " << deviceName << endl;
+    cout << "Frame width: " << m_pCapture->get(CAP_PROP_FRAME_WIDTH) << endl;
+    cout << "     height: " << m_pCapture->get(CAP_PROP_FRAME_HEIGHT) << endl;
+    cout << "Capturing FPS: " << m_pCapture->get(CAP_PROP_FPS) << endl;
+
+    m_IsOpen = true;
+    m_pFrame_next = false;
+    m_pFrame = new cv::Mat(height, width, CV_8UC3);
+    m_pMutex = new std::mutex();
+    m_pThread = new std::thread(&VideoCaptureMT::captureFrame, this);
 }
 
 VideoCaptureMT::~VideoCaptureMT()
@@ -65,35 +76,6 @@ VideoCaptureMT::~VideoCaptureMT()
     delete m_pMutex;
     delete m_pCapture;
     delete m_pFrame;
-}
-
-void VideoCaptureMT::captureInit(int index, int apiID, std::string filePath, int height, int width)
-{
-    m_index = index;
-    if (!filePath.empty()) {
-        m_pCapture = new cv::VideoCapture(filePath);
-    }
-    else {
-        m_pCapture = new cv::VideoCapture;
-        m_pCapture->open(m_index, apiID);
-    }
-
-    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
-    m_pCapture->set(cv::CAP_PROP_FOURCC,codec);
-    m_pCapture->set(cv::CAP_PROP_FRAME_WIDTH, width);
-    m_pCapture->set(cv::CAP_PROP_FRAME_HEIGHT, height);
-    m_pCapture->set(cv::CAP_PROP_FPS, 30);
-
-    cout << "camera " << m_index << endl;
-    cout << "Frame width: " << m_pCapture->get(CAP_PROP_FRAME_WIDTH) << endl;
-    cout << "     height: " << m_pCapture->get(CAP_PROP_FRAME_HEIGHT) << endl;
-    cout << "Capturing FPS: " << m_pCapture->get(CAP_PROP_FPS) << endl;
-
-    m_IsOpen = true;
-    m_pFrame_next = false;
-    m_pFrame = new cv::Mat(height, width, CV_8UC3);
-    m_pMutex = new std::mutex();
-    m_pThread = new std::thread(&VideoCaptureMT::captureFrame, this);
 }
 
 void VideoCaptureMT::captureFrame()
@@ -128,24 +110,22 @@ bool VideoCaptureMT::read(cv::Mat& frame)
 
 int main(int argc, char** argv)
 {
-    int deviceID1 = 0;
-    int deviceID2 = 1;
+    std::string deviceName1 = "/dev/video0";
+    std::string deviceName2 = "/dev/video1";
     int apiID = cv::CAP_V4L2;
     string save_path = "/dev/shm/";
     if (argc < 3) {
-        cerr << "ERROR: parameter must be (deviceID1 deviceID2 [save_path])" << endl;
+        cerr << "ERROR: parameter must be (deviceName1 deviceName2 [save_path])" << endl;
         return 1;
     }
-    if (argc >= 3) {
-        deviceID1 = atoi(argv[1]);
-        deviceID2 = atoi(argv[2]);
-    }
+    deviceName1 = argv[1];
+    deviceName2 = argv[2];
     if (argc >= 4) {
         save_path = argv[3];
-    } 
+    }
     cout << "Opening camera..." << endl;
-    VideoCaptureMT capture1(deviceID1, apiID); // open the first camera
-    VideoCaptureMT capture2(deviceID2, apiID); // open the second camera
+    VideoCaptureMT capture1(deviceName1, apiID); // open the first camera
+    VideoCaptureMT capture2(deviceName2, apiID); // open the second camera
     if (!capture1.isOpened())
     {
         cerr << "ERROR: Can't initialize camera capture1" << endl;
@@ -167,12 +147,12 @@ int main(int argc, char** argv)
     // capture2.set(CAP_PROP_FRAME_HEIGHT, 480);
     // capture2.set(CAP_PROP_FPS, 30.0);
 
-    // cout << "camera " << deviceID1 << endl;
+    // cout << "camera " << deviceName1 << endl;
     // cout << "Frame width: " << capture1.get(CAP_PROP_FRAME_WIDTH) << endl;
     // cout << "     height: " << capture1.get(CAP_PROP_FRAME_HEIGHT) << endl;
     // cout << "Capturing FPS: " << capture1.get(CAP_PROP_FPS) << endl;
 
-    // cout << "camera " << deviceID2 << endl;
+    // cout << "camera " << deviceName2 << endl;
     // cout << "Frame width: " << capture2.get(CAP_PROP_FRAME_WIDTH) << endl;
     // cout << "     height: " << capture2.get(CAP_PROP_FRAME_HEIGHT) << endl;
     // cout << "Capturing FPS: " << capture2.get(CAP_PROP_FPS) << endl;
