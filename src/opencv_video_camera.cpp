@@ -21,7 +21,8 @@ int main(int argc, char** argv)
         save_path = argv[2];
     }
     cout << "Opening camera " << deviceID << endl;
-    VideoCapture capture(deviceID, apiID); // open the first camera
+    VideoCapture capture; // open the first camera
+    capture.open(deviceID, apiID);
     if (!capture.isOpened())
     {
         cerr << "ERROR: Can't initialize camera capture" << endl;

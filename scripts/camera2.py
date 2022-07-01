@@ -1,6 +1,11 @@
 #! /usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+# command to check camera
+# cheese
+# guvcview
+# v4l2-ctl -d /dev/video0 --list-formats-ext
+
 import cv2
 cap0 = cv2.VideoCapture(0)
 cap0.set(3, 640)

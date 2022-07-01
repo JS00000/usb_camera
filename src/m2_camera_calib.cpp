@@ -138,7 +138,8 @@ int main(int argc, char** argv)
     }
 
     std::cout << "Opening camera " << deviceID << std::endl;
-    cv::VideoCapture capture(deviceID, apiID); // open the first camera
+    cv::VideoCapture capture; // open the first camera
+    capture.open(deviceID, apiID);
     if (!capture.isOpened())
     {
         std::cerr << "ERROR: Can't initialize camera capture" << std::endl;

@@ -74,7 +74,8 @@ void VideoCaptureMT::captureInit(int index, int apiID, std::string filePath, int
         m_pCapture = new cv::VideoCapture(filePath);
     }
     else {
-        m_pCapture = new cv::VideoCapture(m_index, apiID);
+        m_pCapture = new cv::VideoCapture;
+        m_pCapture->open(m_index, apiID);
     }
 
     int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
