@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     cv::Mat map1[2], map2[2];
 
     if (enable_info || enable_rect) {
-        std::string camera_calib_para = ros::package::getPath("usb_camera") + "/calib/m2_calibration.yml";
+        std::string camera_calib_para = ros::package::getPath("usb_camera") + "/calib/m2_calibration_480p.yml";
         std::cout << "Read camera calib parameter from " << camera_calib_para << std::endl;
         // read parameter
         cv::FileStorage fs(camera_calib_para, cv::FileStorage::READ);
